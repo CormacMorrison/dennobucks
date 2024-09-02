@@ -1,0 +1,40 @@
+swagger: "2.0"
+info:
+  title: dennobucks API
+  description: |
+    API description in for dennobucks.
+    All error strings are required to be clear descriptive message. The descriptive message won't change the marks you receive when being automarked as long as you make an attempt for each one to be custom, but they will improve the usability of the frontend.
+  version: 1.0.0
+ 
+schemes:
+  - http
+
+tags:
+  - name: "Iteration 1"
+    description: dennobucks version 1 
+
+components:
+  prim:
+    Username:
+      type: string
+      example: lamingt
+  
+  return:
+    Empty:
+      type: object
+
+paths:
+
+  /home:
+    post:
+      summary: home page for user (this is a placeholder)
+      description: placeholder
+      tags:
+        - "Iteration 1"
+      parameters:
+        - $ref: '#/components/prim/username'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/components/return/Empty'
