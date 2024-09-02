@@ -2,19 +2,19 @@ create or replace function
 	CheckPlayerJoin() returns trigger as
 $$
 	declare
-		num_players int;
+		numPlayers int;
 	begin
 		select
-			g.num_players
+			g.numPlayers
 		into
-			num_players
+			numPlayers
 		from
 			Games g
 		where
-			g.id = new.gameid;
+			g.id = new.gameId;
 
 		-- 20 hardcoded limit, change if necessary
-		if num_players >= 20 then
+		if numPlayers >= 20 then
 			raise exception 'Maximum players reached';
 		end if;
 
@@ -30,16 +30,16 @@ $$
 			update
 				Games
 			set
-				num_players = num_players + 1
+				numPlayers = numPlayers + 1
 			where
-				id = new.gameid;
+				id = new.gameId;
 		elsif TG_OP = 'DELETE' then
 			update
 				Games
 			set
-				num_players = num_players - 1
+				numPlayers = numPlayers - 1
 			where
-				id = new.gameid;
+				id = new.gameId;
 		end if; 
 
 		return new;
@@ -73,11 +73,11 @@ $$
 		from
 			Games g
 		where
-			g.id = new.gameid;
+			g.id = new.gameId;
 
-		if new.amount > game.bet_limit then
+		if new.amount > game.betLimit then
 			raise exception 'Bet amount exceeds limit';
-		elsif new.round != game.cur_round then
+		elsif new.round != game.curRound then
 			raise exception 'Invalid round number';
 		end if;
 	end;
@@ -97,15 +97,15 @@ $$
 $$ language plpgsql;
 
 create trigger CheckPlayerJoin
-before insert on ActiveSessions
+before insert on UserGameSessions
 for each row execute procedure CheckPlayerJoin();
 
 create trigger UpdatePlayerCount
-after insert or delete on ActiveSessions
+after insert or delete on UserGameSessions
 for each row execute procedure UpdatePlayerCount();
 
 create trigger UpdateBalanceAfterRound
-after update on ActiveSessions
+after update on UserGameSessions
 for each row execute procedure UpdateBalanceAfterRound();
 
 create trigger UpdateBalanceAfterBet

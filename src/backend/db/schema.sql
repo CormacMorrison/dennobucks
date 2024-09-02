@@ -1,64 +1,64 @@
-create domain pos_int as int check (value > 0);
+create domain posInt as int check (value > 0);
 create type status as enum('lobby', 'waiting', 'active', 'finished');
 
 create table Users (
-	id				text,
+	id				  varchar(36),
 	username 		text unique not null,
-	email 			text unique not null, -- delete?
-	pw 				text not null,
+	email 			text unique default 'abc', -- keep for adding emails later
+	pw 				  text not null,
 	balance			int not null default 1000,
-	created_at		timestamp not null default current_timestamp,
+	createdAt		timestamp not null default current_timestamp,
 	primary key (id),
 	-- modify this if needed 
-	constraint username_check check (
+	constraint usernameCheck check (
 		length(username) between 2 and 15
 	)
 );
 
-create table UserTokens (
-  userid			text,
-  token				text,
-  primary key (userid, token),
-  foreign key (userid) references Users(id)
-);
+-- create table Sessions (
+--   userId			varchar(36),
+--   token				varchar(36),
+--   primary key (userId, token),
+--   foreign key (userId) references Users(id)
+-- );
 
 -- update cur_round after every round
 create table Games (
-	id  			text,
-	host			text not null,
-	max_players 	pos_int not null default 10, -- delete this? just have a reasonable hardcoded limit
-	num_players		int not null default 1,
-	game_status 	status default 'lobby',
-	num_rounds 		pos_int not null default 5,
-	cur_round		pos_int not null default 1,
-	bet_limit		pos_int not null default 500, 
-	round_time		pos_int not null default 30, 
+	id  			  varchar(36),
+	host			  varchar(36) not null,
+	maxPlayers 	posInt not null default 10, -- delete this? just have a reasonable hardcoded limit
+	numPlayers	int not null default 1,
+	gameStatus 	status default 'lobby',
+	numRounds 	posInt not null default 5,
+	curRound		posInt not null default 1,
+	betLimit		posInt not null default 500, 
+	roundTime		posInt not null default 30, 
 	-- add more 
 	primary key (id),
-	foreign key (host) references Users(id)
-	constraint round_check check(
-		cur_round <= num_rounds
+	foreign key (host) references Users(id),
+	constraint roundCheck check(
+		curRound <= numRounds
 	)
 );
 
 -- update winnings after every round
 -- trigger on add to check if number of players > max_players
-create table ActiveSessions (
-	userid			text,
-	gameid			text,
+create table UserGameSessions (
+	userId			varchar(36),
+	gameId			varchar(36),
 	winnings		int not null default 0,
-	primary key (userid, gameid),
-	foreign key (gameid) references Games(id) on delete cascade,
-	foreign key (userid) references Users(id) on delete cascade
+	primary key (userId, gameId),
+	foreign key (gameId) references Games(id) on delete cascade,
+	foreign key (userId) references Users(id) on delete cascade
 );
 
 -- trigger to check that amount <= bet_limit, round <= num_rounds 
 create table Bets (
-	userid			text,
-	gameid			text,
-	round			pos_int, 
-	amount			pos_int not null,
-	primary key (userid, gameid, round),
-	foreign key (gameid) references Games(id) on delete cascade,
-	foreign key (userid) references ActiveSessions(userid) on delete cascade
+	userId			varchar(36),
+	gameId			varchar(36),
+	round			  posInt, 
+	amount			posInt not null,
+	primary key (userId, gameId, round),
+	-- foreign key (gameId) references Games(id) on delete cascade,
+	foreign key (userId, gameId) references UserGameSessions(userId, gameId) on delete cascade
 );
