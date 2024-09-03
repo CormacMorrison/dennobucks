@@ -4,13 +4,13 @@ import morgan from "morgan";
 import config from "./config.json";
 import cors from "cors";
 import errorHandler from "middleware-http-errors";
-import HTTPError from "http-errors";
+// import HTTPError from "http-errors";
 import YAML from "yaml";
 import sui from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
 import process from "process";
-import { Token, Error } from "./types.ts";
+// import { Token, Error } from "./types.ts";
 import { Register } from "./users.ts";
 
 // Set up web app
@@ -41,8 +41,8 @@ app.get("/echo", (req: Request, res: Response) => {
 });
 
 app.post("/register", async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  const output: Token | Error = await Register(username, password);
+  const { email, username, password } = req.body;
+  return res.json(await Register(email, username, password));
 });
 
 // For handling errors
