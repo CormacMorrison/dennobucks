@@ -41,7 +41,7 @@ app.get("/echo", (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-app.post("/register", async (req: Request, res: Response) => {
+app.post("/auth/register", async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
   const output = await Register(email, username, password);
   if ("error" in output) {

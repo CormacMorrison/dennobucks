@@ -35,5 +35,5 @@ async function requestHelper(
 }
 
 export async function requestRegister(email: string, username: string, password: string) {
-  return await requestHelper("POST", "/register", { email, username, password });
+  return await requestHelper("POST", "/auth/register", { email, username, password });
 }

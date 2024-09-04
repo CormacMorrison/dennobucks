@@ -20,7 +20,7 @@ jest.mock("pg", () => {
 
 const mock = new MockAdapter(axios);
 mock
-  .onPost(`${SERVER_URL}/register`, {
+  .onPost(`${SERVER_URL}/auth/register`, {
     email: "email@email.com",
     password: "password123",
     username: "namington",
@@ -44,7 +44,7 @@ describe("Register", () => {
   });
 
   test("Testing API endpoint", async () => {
-    const res = await axios.post(`${SERVER_URL}/register`, {
+    const res = await axios.post(`${SERVER_URL}/auth/register`, {
       email: "email@email.com",
       password: "password123",
       username: "namington",
