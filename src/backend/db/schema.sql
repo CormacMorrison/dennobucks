@@ -4,7 +4,7 @@ create type status as enum('lobby', 'waiting', 'active', 'finished');
 create table Users (
 	id				  varchar(36),
 	username 		text unique not null,
-	email 			text unique default 'abc', -- keep for adding emails later
+	email 			text unique,
 	pw 				  text not null,
 	balance			int not null default 1000,
 	createdAt		timestamp not null default current_timestamp,

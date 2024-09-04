@@ -12,6 +12,7 @@ import path from "path";
 import process from "process";
 // import { Token, Error } from "./types.ts";
 import { Register } from "./users.ts";
+import HttpError from "http-errors";
 
 // Set up web app
 const app = express();
@@ -42,7 +43,12 @@ app.get("/echo", (req: Request, res: Response) => {
 
 app.post("/register", async (req: Request, res: Response) => {
   const { email, username, password } = req.body;
-  return res.json(await Register(email, username, password));
+  const output = await Register(email, username, password);
+  if ("error" in output) {
+    throw HttpError(output.statusCode, output.error);
+  }
+
+  return res.json(output);
 });
 
 // For handling errors
