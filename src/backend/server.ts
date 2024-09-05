@@ -1,4 +1,4 @@
-import express, { json, Request, Response } from "express";
+import express, { json, NextFunction, Request, Response } from "express";
 import { echo } from "./echo.ts";
 import morgan from "morgan";
 import config from "./config.json";
@@ -9,10 +9,11 @@ import YAML from "yaml";
 import sui from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
-import process from "process";
+import process, { nextTick } from "process";
 // import { Token, Error } from "./types.ts";
 import { Register } from "./users.ts";
 import HttpError from "http-errors";
+import createHttpError from "http-errors";
 
 // Set up web app
 const app = express();
@@ -41,11 +42,12 @@ app.get("/echo", (req: Request, res: Response) => {
   return res.json(echo(data));
 });
 
-app.post("/auth/register", async (req: Request, res: Response) => {
+app.post("/auth/register", async (req: Request, res: Response, next: NextFunction) => {
   const { email, username, password } = req.body;
   const output = await Register(email, username, password);
   if ("error" in output) {
-    throw HttpError(output.statusCode, output.error);
+    return next(createHttpError(output.statusCode, output.error));
+    // throw HttpError(output.statusCode, output.error);
   }
 
   return res.json(output);

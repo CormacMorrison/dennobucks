@@ -1,6 +1,5 @@
 import { Register } from "../users.ts";
 import { Client } from "pg";
-import MockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import { port, url } from "../config.json";
 
@@ -18,17 +17,6 @@ jest.mock("pg", () => {
   };
 });
 
-const mock = new MockAdapter(axios);
-mock
-  .onPost(`${SERVER_URL}/auth/register`, {
-    email: "email@email.com",
-    password: "password123",
-    username: "namington",
-  })
-  .reply(200, {
-    token: "token123",
-  });
-
 describe("Register", () => {
   let client: Client;
   beforeEach(() => {
@@ -43,57 +31,88 @@ describe("Register", () => {
     jest.resetAllMocks();
   });
 
-  test("Testing API endpoint", async () => {
-    const res = await axios.post(`${SERVER_URL}/auth/register`, {
-      email: "email@email.com",
-      password: "password123",
-      username: "namington",
-    });
-    expect(res.data.token).toEqual("token123");
-  });
-
   test("Invalid email", async () => {
-    const res = await Register("abc", "lamingt", "lamingtons1");
-    expect(client.connect).toHaveBeenCalledTimes(0);
-    expect(res).toStrictEqual({
-      error: expect.any(String),
-      statusCode: 400,
+    await expect(
+      axios.post(`${SERVER_URL}/auth/register`, {
+        email: "abc",
+        password: "lamingtons1",
+        username: "lamingt",
+      })
+    ).rejects.toMatchObject({
+      response: {
+        status: 400,
+        data: {
+          error: expect.any(String),
+        },
+      },
     });
   });
 
   test("Invalid username length", async () => {
-    const res = await Register("abc@gmai.com", "la", "lamingtons1");
-    expect(client.connect).toHaveBeenCalledTimes(0);
-    expect(res).toStrictEqual({
-      error: expect.any(String),
-      statusCode: 400,
+    await expect(
+      axios.post(`${SERVER_URL}/auth/register`, {
+        email: "abc@gmai.com",
+        password: "lamingtons1",
+        username: "la",
+      })
+    ).rejects.toMatchObject({
+      response: {
+        status: 400,
+        data: {
+          error: expect.any(String),
+        },
+      },
     });
   });
 
   test("Invalid username characters", async () => {
-    const res = await Register("abc@gmai.com", "lamingt!", "lamingtons1");
-    expect(client.connect).toHaveBeenCalledTimes(0);
-    expect(res).toStrictEqual({
-      error: expect.any(String),
-      statusCode: 400,
+    await expect(
+      axios.post(`${SERVER_URL}/auth/register`, {
+        email: "abc@gmai.com",
+        password: "lamingtons1",
+        username: "lamingt!",
+      })
+    ).rejects.toMatchObject({
+      response: {
+        status: 400,
+        data: {
+          error: expect.any(String),
+        },
+      },
     });
   });
 
   test("Invalid password length", async () => {
-    const res = await Register("abc@gmai.com", "lamingt", "lam1");
-    expect(client.connect).toHaveBeenCalledTimes(0);
-    expect(res).toStrictEqual({
-      error: expect.any(String),
-      statusCode: 400,
+    await expect(
+      axios.post(`${SERVER_URL}/auth/register`, {
+        email: "abc@gmai.com",
+        password: "lam1",
+        username: "lamingt",
+      })
+    ).rejects.toMatchObject({
+      response: {
+        status: 400,
+        data: {
+          error: expect.any(String),
+        },
+      },
     });
   });
 
   test("Password does not contain at least one number and letter", async () => {
-    const res = await Register("abc@gmai.com", "lamingt", "lamingtons");
-    expect(client.connect).toHaveBeenCalledTimes(0);
-    expect(res).toStrictEqual({
-      error: expect.any(String),
-      statusCode: 400,
+    await expect(
+      axios.post(`${SERVER_URL}/auth/register`, {
+        email: "abc@gmai.com",
+        password: "lamingtons",
+        username: "lamingt",
+      })
+    ).rejects.toMatchObject({
+      response: {
+        status: 400,
+        data: {
+          error: expect.any(String),
+        },
+      },
     });
   });
 
