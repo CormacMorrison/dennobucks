@@ -26,6 +26,7 @@ create table Users (
 create table Games (
 	id  			  varchar(36),
 	host			  varchar(36) not null,
+  code        varchar(6) unique not null,
 	maxPlayers 	posInt not null default 10, -- delete this? just have a reasonable hardcoded limit
 	numPlayers	int not null default 1,
 	gameStatus 	status default 'lobby',
