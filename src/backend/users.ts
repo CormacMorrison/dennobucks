@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Token, Error } from "./types.ts";
+import { Token, ErrorOutput } from "./types";
 import path from "path";
 import { Client } from "pg";
 import bcrypt from "bcrypt";
@@ -13,7 +13,7 @@ export async function Register(
   email: string,
   username: string,
   password: string
-): Promise<Token | Error> {
+): Promise<Token | ErrorOutput> {
   if (!validator.isEmail(email)) {
     return {
       error: "Invalid email.",
@@ -55,7 +55,7 @@ export async function Register(
     `;
     await client.query(query, [userId, username, email, passwordHash]);
 
-    const secret: string = process.env.JWT_SECRET || "i-hope-this-secret-isnt-used";
+    const secret: string = process.env.JWT_SECRET;
     const token = jwt.sign(
       {
         exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
@@ -64,7 +64,6 @@ export async function Register(
       secret
     );
 
-    await client.end();
     return {
       token,
     };
@@ -81,5 +80,55 @@ export async function Register(
         statusCode: 500,
       };
     }
+  } finally {
+    await client.end();
+  }
+}
+
+export async function Login(email: string, password: string): Promise<Token | ErrorOutput> {
+  const client = new Client();
+  await client.connect();
+  try {
+    const query: string = `
+      select
+        *
+      from
+        users u
+      where
+        u.email = $1
+    `;
+
+    const res = await client.query(query, [email]);
+    console.log(res);
+    if (res.rowCount <= 0 || !(await bcrypt.compare(password, res.rows[0].pw))) {
+      throw new Error("Email or password are incorrect");
+    }
+
+    const secret: string = process.env.JWT_SECRET;
+    const token = jwt.sign(
+      {
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+        userId: res.rows[0].id,
+      },
+      secret
+    );
+
+    return {
+      token,
+    };
+  } catch (err) {
+    if (err.message === "Email or password are incorrect") {
+      return {
+        error: err.message,
+        statusCode: 400,
+      };
+    } else {
+      return {
+        error: err,
+        statusCode: 500,
+      };
+    }
+  } finally {
+    await client.end();
   }
 }

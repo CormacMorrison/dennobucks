@@ -11,7 +11,7 @@ import fs from "fs";
 import path from "path";
 import process, { nextTick } from "process";
 // import { Token, Error } from "./types.ts";
-import { Register } from "./users.ts";
+import { Login, Register } from "./users";
 import HttpError from "http-errors";
 import createHttpError from "http-errors";
 
@@ -47,7 +47,16 @@ app.post("/auth/register", async (req: Request, res: Response, next: NextFunctio
   const output = await Register(email, username, password);
   if ("error" in output) {
     return next(createHttpError(output.statusCode, output.error));
-    // throw HttpError(output.statusCode, output.error);
+  }
+
+  return res.json(output);
+});
+
+app.post("/auth/login", async (req: Request, res: Response, next: NextFunction) => {
+  const { email, password } = req.body;
+  const output = await Login(email, password);
+  if ("error" in output) {
+    return next(createHttpError(output.statusCode, output.error));
   }
 
   return res.json(output);
