@@ -1,7 +1,8 @@
-import { Register } from "../users.ts";
+import { Login, Register } from "../users.ts";
 import { Client } from "pg";
 import axios from "axios";
 import { port, url } from "../config.json";
+import { requestRegister } from "./testHelpers.ts";
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -17,20 +18,20 @@ jest.mock("pg", () => {
   };
 });
 
+let client: Client;
+beforeEach(() => {
+  client = new Client();
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+afterAll(() => {
+  jest.resetAllMocks();
+});
+
 describe("Register", () => {
-  let client: Client;
-  beforeEach(() => {
-    client = new Client();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  afterAll(() => {
-    jest.resetAllMocks();
-  });
-
   test("Invalid email", async () => {
     await expect(
       axios.post(`${SERVER_URL}/auth/register`, {
@@ -135,3 +136,37 @@ describe("Register", () => {
     });
   });
 });
+
+// describe("Login", () => {
+//   beforeEach(async () => {
+//     // await Register("lamingt@gmail.com", "lamingt", "lamington1");
+//     await requestRegister("lamingt@gmail.com", "lamingt", "lamington1");
+//   });
+
+//   test("Invalid login", async () => {
+//     await expect(
+//       axios.post(`${SERVER_URL}/auth/login`, {
+//         email: "abc@gmail.com",
+//         password: "abc",
+//       })
+//     ).rejects.toMatchObject({
+//       response: {
+//         status: 400,
+//         data: {
+//           error: expect.any(String),
+//         },
+//       },
+//     });
+//   });
+
+//   test("Valid login", async () => {
+//     const res = await axios.post(`${SERVER_URL}/auth/login`, {
+//       email: "lamingt@gmail.com",
+//       password: "lamington1",
+//     });
+//     expect(res.data).toStrictEqual({
+//       token: expect.any(String),
+//     });
+//     expect(res.status).toStrictEqual(200);
+//   });
+// });

@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    // "noImplicitAny": true,
+    "noImplicitAny": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "allowJs": true,
     "allowImportingTsExtensions": true,
-    "target": "es2018",
+    "target": "es2022",
     "module": "commonjs"
   },
   "exclude": ["**/**_broken.ts"]
